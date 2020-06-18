@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const database = process.env.DATABASE || "newsApp";
-export const connect = () => {
+const connect = () => {
     mongoose.connect(`mongodb://localhost:27017/${database}`, {
     useNewUrlParser: true,
     useCreateIndex: true,
@@ -12,3 +12,5 @@ export const connect = () => {
         else console.log("Error while connecting to MongoDB ",err);
     })
 }
+
+module.exports = { connect };
