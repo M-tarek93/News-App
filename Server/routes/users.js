@@ -12,8 +12,10 @@ router.post('/', async (req, res, next) => {
             password,
         })
         res.json(user);
-    } catch {
-        res.status(500).send("Internal server error while registering");
+    } catch (e){
+        if (e.code === 11000) res.status(421).json(e)
+        if (e.name === 'ValidationError') res.status(422).json(e);
+        else res.status(500).send("Internal server error while registering");
     }
 
 })

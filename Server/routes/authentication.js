@@ -26,7 +26,7 @@ const login = async (req, res) => {
 }
 
 const generateAccessToken = (userData) => {
-    const {password,__v,...user} = userData._doc 
+    const {password,__v,email,...user} = userData._doc 
     return jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '20s' });
 }
 
