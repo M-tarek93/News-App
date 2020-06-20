@@ -15,7 +15,7 @@ import Register from "./Register";
 import { Paper } from "@material-ui/core";
 
 // error variable if any
-let error = null;
+let error = '';
 
 const Login = () => {
   //user context that holds user info
@@ -60,6 +60,7 @@ const Login = () => {
         const user = await getUser.json();
         localStorage.setItem("user", JSON.stringify(user?.user));
         setImmediate(() => setUser(user));
+        error = '';
       }
       // if no user was found in DB or invalid email/password combination
       else if (res.status === 404 || res.status === 401)
@@ -76,8 +77,8 @@ const Login = () => {
   if (isNewUser) return <Register setIsNewUser={setIsNewUser} />;
   else
     return (
-      <Container component="main" maxWidth="xs" className="d-flex h-100">
-        <Paper className="row p-5 align-self-center">
+      <Container component="main" maxWidth="xs" className="d-flex h-100 mt-5">
+        <Paper className="row p-5 align-self-center" elevation={3}>
           <CssBaseline />
           <div className={classes.paper}>
             <Avatar className={classes.avatar}>

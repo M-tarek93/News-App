@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import Home from './components/Home';
 import Sources from './components/Sources';
 import "./App.css";
+import Navbar from "./components/NavBar";
 
 export const UserContext = React.createContext(null);
 function App() {
@@ -12,6 +13,7 @@ function App() {
   return (
     <UserContext.Provider value={providerValue}>
       <BrowserRouter>
+        <Navbar />
         <Switch>
           <Route exact path="/" component={Home} />
           <Route exact path="/sources" component={Sources} />

@@ -60,7 +60,7 @@ const Register = ({ setIsNewUser }) => {
 
   return (
     <Container component="main" maxWidth="xs" className="d-flex h-100">
-      <Paper className="row p-5 align-self-center">
+      <Paper className="row p-5 align-self-center" elevation={3}>
         <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
