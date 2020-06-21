@@ -11,19 +11,17 @@ import { flag } from "country-emoji";
 import LocalOfferTwoToneIcon from "@material-ui/icons/LocalOfferTwoTone";
 import LanguageTwoToneIcon from "@material-ui/icons/LanguageTwoTone";
 import LocationOnTwoToneIcon from "@material-ui/icons/LocationOnTwoTone";
-import { UserContext } from "../App";
 import { handleSubscription } from "./helpers";
 
 const SourceCard = ({ source }) => {
-  const { user, setUser } = React.useContext(UserContext);
   const [checked, setChecked] = React.useState(
-    user?.sources?.includes(source.id)
+    localStorage.getItem('sources').includes(source.id)
   );
   const classes = useStyles();
 
   const handleChange = async () => {
     const action = !checked ? "subscribe" : "unsubscribe";
-    handleSubscription(source.id, action, user, setUser);
+    handleSubscription(source.id, action);
     setChecked(!checked);
   };
   return (

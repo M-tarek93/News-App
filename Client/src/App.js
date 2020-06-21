@@ -2,16 +2,21 @@ import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import Home from './components/Home';
 import Sources from './components/Sources';
+import { checkAuthenticated } from './components/helpers';
 import "./App.css";
 import Navbar from "./components/NavBar";
 
-export const UserContext = React.createContext(null);
+export const AuthContext = React.createContext(null);
 function App() {
-  const [user, setUser] = React.useState(JSON.parse(localStorage.getItem("user")) || null);
-  const providerValue = { user, setUser };
+  const [ authenticated, setAuthenticated ] = React.useState(false);
+  const providerValue = { authenticated, setAuthenticated };
+
+  React.useEffect(() => {
+    checkAuthenticated().then(res => setAuthenticated(res));
+  },[])
 
   return (
-    <UserContext.Provider value={providerValue}>
+    <AuthContext.Provider value={providerValue}>
       <BrowserRouter>
         <Navbar />
         <Switch>
@@ -19,7 +24,7 @@ function App() {
           <Route exact path="/sources" component={Sources} />
         </Switch>
       </BrowserRouter>
-    </UserContext.Provider>
+    </AuthContext.Provider>
   );
 }
 

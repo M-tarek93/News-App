@@ -14,11 +14,11 @@ import MenuBookTwoToneIcon from "@material-ui/icons/MenuBookTwoTone";
 import InputIcon from "@material-ui/icons/Input";
 import MenuIcon from '@material-ui/icons/Menu';
 import { NavLink } from "react-router-dom";
-import { UserContext } from "../App";
+import { AuthContext } from "../App";
 import { logout } from "./helpers";
 
 const Navbar = () => {
-  const { user, setUser } = React.useContext(UserContext);
+  const { authenticated, setAuthenticated } = React.useContext(AuthContext);
 
   const classes = useStyles();
 
@@ -39,7 +39,7 @@ const Navbar = () => {
         <Typography variant="h6" className={classes.title}>
           News-App
         </Typography>
-        {user && (
+        {authenticated && (
           <>
             <Typography className={classes.link}>
               <NavLink to="/" className="btn text-light">
@@ -55,7 +55,7 @@ const Navbar = () => {
             <Typography
               color="inherit"
               component={Button}
-              onClick={(e) => logout(setUser)}
+              onClick={(e) => logout(setAuthenticated)}
               style={{textTransform: 'none'}}
               className={classes.link}
             >
@@ -92,7 +92,7 @@ const Navbar = () => {
                   <Typography
                     color="inherit"
                     style={{ textTransform: "none" }}
-                    onClick={(e) => logout(setUser)}
+                    onClick={(e) => logout(setAuthenticated)}
                   >
                     Log out
                   </Typography>

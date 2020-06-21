@@ -2,8 +2,8 @@ const jwt = require('jsonwebtoken');
 
 const authenticated = () => {
     return (req, res, next) => {
-        if (typeof req.headers.authorization !== "undefined") {
-            let token = req.headers.authorization.split(" ")[1];
+        if (req.cookies.accessTokenP1) {
+            let token = req.cookies.accessTokenP1 + "." + req.cookies.accessTokenP2;
             verifyToken(token, req, res, next);
         } else {
             // no token was provided

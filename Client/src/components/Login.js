@@ -1,5 +1,5 @@
 import React from "react";
-import { UserContext } from "../App";
+import { AuthContext } from "../App";
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
@@ -19,7 +19,7 @@ let error = '';
 
 const Login = () => {
   //user context that holds user info
-  const { setUser } = React.useContext(UserContext);
+  const { setAuthenticated } = React.useContext(AuthContext);
   //auth data state
   const [authData, setAuthData] = React.useState({
     email: "",
@@ -40,6 +40,7 @@ const Login = () => {
       const res = await fetch("http://localhost:5000/auth/login", {
         method: "POST",
         body: JSON.stringify(authData),
+        credentials: 'include',
         headers: {
           "Content-Type": "application/json",
         },
@@ -47,19 +48,8 @@ const Login = () => {
       // if user is successfully logged in
       if (res.status === 200) {
         const response = await res.json();
-        localStorage.setItem("accessToken", response?.accessToken);
-        localStorage.setItem("refreshToken", response?.refreshToken);
-        localStorage.setItem("expAt", response?.expAt);
-        const getUser = await fetch("http://localhost:5000/auth/me", {
-          method: "POST",
-          body: JSON.stringify({ token: response.accessToken }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const user = await getUser.json();
-        localStorage.setItem("user", JSON.stringify(user?.user));
-        setImmediate(() => setUser(user?.user));
+        localStorage.setItem("sources", response);
+        setImmediate(() => setAuthenticated(true));
         error = '';
       }
       // if no user was found in DB or invalid email/password combination

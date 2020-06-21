@@ -1,8 +1,8 @@
 const router = require('express').Router();
 const UserModel = require('../models/users');
-const RefreshTokens = require('../models/refreshTokens');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const authenticated = require('../middleware/authorization').authenticated();
 
 
 
@@ -13,10 +13,11 @@ const login = async (req, res) => {
         if (!user) return res.status(404).send('No user was found with this email');
         if (await bcrypt.compare(password, user.password)){
             const accessToken = generateAccessToken(user);
-            const refreshToken = generateRefreshToken(user._id);
-            const expAt = Math.ceil(Date.now() / 1000) + 20;
-            await RefreshTokens.findOneAndUpdate({ user }, {token: refreshToken }, {upsert: true, new: true, setDefaultsOnInsert: true});
-            res.status(200).json({accessToken, refreshToken, expAt});
+            const accessTokenP1 = accessToken.split('.').slice(0,2).join('.');
+            const accessTokenP2 = accessToken.split(".")[2];
+            res.cookie('accessTokenP1',accessTokenP1,{secure: false, sameSite: true, expires: new Date(Date.now() + 31536000000)});
+            res.cookie('accessTokenP2',accessTokenP2,{secure: false, httpOnly: true, expires: new Date(Date.now() + 31536000000)});
+            res.status(200).send(user.sources);
         } else {
             res.status(401).send('Invalid credentials');
         }
@@ -26,54 +27,22 @@ const login = async (req, res) => {
 }
 
 const generateAccessToken = (userData) => {
-    const {password,__v,email,...user} = userData._doc 
-    return jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '20s' });
+    const {password,__v,email,fullName,...user} = userData._doc 
+    return jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
 }
 
-const generateRefreshToken = (user) => {
-    return jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d'});
-}
-
-const regenerateAccessToken = async (req, res) => {
-    const { body: { refreshToken } } = req;
-    if (!refreshToken) return res.status(402).send('No refresh token was provided');
-    const token = await RefreshTokens.findOne({token: refreshToken});
-    if (!token) return res.status(403).send('Not authorized');
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-        if (err) return res.status(401).send('Invalid token');
-        UserModel.findOne({ _id: user.user }).then((user) => {
-            const accessToken = generateAccessToken(user);
-            const expAt = Math.ceil(Date.now() / 1000) + 20;
-            res.json({ accessToken, expAt })
-        });
-    })
-}
-
-const getUser = (req,res,next) => {
-    const { body: { token } } = req
-    if (!token) return res.status(401).send('Not authorized');
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.status(403).send('Not authorized');
-        req.user = user;
-        res.json(user)
-    })
-}
 
 const logout = async (req, res) => {
-    const { body: { refreshToken } } = req
-    try{
-        const token = await RefreshTokens.findOneAndDelete({ token: refreshToken });
-        if (!token) return res.status(402).send("Token not found");
-        res.sendStatus(204)
-    }catch{
-        res.sendStatus(500)
-    }
+    res.clearCookie('accessTokenP1');
+    res.clearCookie('accessTokenP2');
+    res.sendStatus(200)
 }
 
 
 router.post('/login', login);
-router.post('/me', getUser);
-router.post('/refresh', regenerateAccessToken);
 router.post('/logout', logout);
+router.get('/checkAuth', authenticated, async (req, res, next) => {
+    req.user ? res.sendStatus(200) : res.sendStatus(443);
+})
 
 module.exports = router;

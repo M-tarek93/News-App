@@ -1,49 +1,28 @@
-export const fetchData = async (currentView) => {
-  await checkAccessTokenExpiry();
-  const res = await fetch(`http://localhost:5000/${currentView}`, {
-    headers: {
-      Authorization: "Bearer " + localStorage.getItem("accessToken"),
-    },
+export const fetchData = async (target) => {
+  const res = await fetch(`http://localhost:5000/${target}`,{
+    credentials: 'include'
   });
   return await res.json();
 };
 
-export const checkAccessTokenExpiry = async () => {
-  const expTime = localStorage.getItem("expAt");
-  const now = Math.ceil(Date.now() / 1000);
-  if (expTime > now + 4) return;
-  else {
-    const refreshToken = localStorage.getItem("refreshToken");
-    const getNewToken = await fetch("http://localhost:5000/auth/refresh", {
-      method: "POST",
-      body: JSON.stringify({ refreshToken }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const res = await getNewToken?.json();
-    const newAccessToken = res?.accessToken;
-    localStorage.setItem("accessToken", newAccessToken);
-    localStorage.setItem("expAt", res?.expAt);
-  }
-};
-
-export const logout = async (setUser) => {
-  const refreshToken = localStorage.getItem("refreshToken");
+export const logout = async (setAuthenticated) => {
   await fetch("http://localhost:5000/auth/logout", {
     method: "POST",
-    body: JSON.stringify({ refreshToken }),
-    headers: {
-      "Content-Type": "application/json",
-    },
+    credentials: 'include'
   });
-  setUser();
+  setAuthenticated(false);
   localStorage.clear();
 };
 
-export const handleSubscription = async (id, action, user, setUser) => {
+export const handleSubscription = async (id, action) => {
     const response = await fetchData(`news/${action}/${id}`);
-    const newUserData = {...user, sources: response}
-    localStorage.setItem("user", JSON.stringify(newUserData));
-    setUser(newUserData);
+    localStorage.setItem("sources", JSON.stringify(response));
 }
+
+
+export const checkAuthenticated = async () => {
+  const res = await fetch('http://localhost:5000/auth/checkAuth',{
+    credentials: 'include'
+  });
+  return res.status === 200 ? true : false;
+} 

@@ -1,19 +1,18 @@
 import React from "react";
-import { UserContext } from "../App";
+import { AuthContext } from "../App";
 import Login from "./Login";
 import { fetchData } from "./helpers";
 import NewsCard from "./NewsCard";
 import { Container } from "@material-ui/core";
 
 const Home = () => {
-  const { user } = React.useContext(UserContext);
+  const { authenticated } = React.useContext(AuthContext);
   const [articles, setArticles] = React.useState([]);
-
   React.useEffect(() => {
-    user && fetchData("news/stream").then(response => setArticles(response));
-  }, [user]);
+    authenticated && fetchData("news/stream").then(response => setArticles(response));
+  }, [authenticated]);
 
-  if (!user) return <Login />;
+  if (!authenticated) return <Login />;
   else
     return (
       <Container style={{width: '80%'}} className="d-flex h-100 justify-content-center">
