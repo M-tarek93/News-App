@@ -8,7 +8,7 @@ router.post('/', async (req, res, next) => {
         const { fullName, email, password } = req.body;
         const user = await user_model.create({
             fullName,
-            email,
+            email: email.toLowerCase(),
             password,
         })
         res.json(user);

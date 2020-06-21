@@ -1,5 +1,6 @@
 import React from "react";
 import { AuthContext } from "../App";
+import xss from 'xss';
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
@@ -39,7 +40,7 @@ const Login = () => {
     if (authData.email && authData.password) {
       const res = await fetch("http://localhost:5000/auth/login", {
         method: "POST",
-        body: JSON.stringify(authData),
+        body: xss(JSON.stringify(authData)),
         credentials: 'include',
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +54,7 @@ const Login = () => {
         error = '';
       }
       // if no user was found in DB or invalid email/password combination
-      else if (res.status === 404 || res.status === 401)
+      else if (res.status === 401)
         error = "Invalid credintials";
       // server side problem
       else error = "some thing wrong happened";

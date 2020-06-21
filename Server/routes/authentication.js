@@ -9,8 +9,8 @@ const authenticated = require('../middleware/authorization').authenticated();
 const login = async (req, res) => {
     const { body: { email, password } } = req;
     try {
-        const user = await UserModel.findOne({ email });
-        if (!user) return res.status(404).send('No user was found with this email');
+        const user = await UserModel.findOne({ email: email.toLowerCase() });
+        if (!user) return res.sendStatus(401).send('Invalid credentials');
         if (await bcrypt.compare(password, user.password)){
             const accessToken = generateAccessToken(user);
             const accessTokenP1 = accessToken.split('.').slice(0,2).join('.');
@@ -41,7 +41,7 @@ const logout = async (req, res) => {
 
 router.post('/login', login);
 router.post('/logout', logout);
-router.get('/checkAuth', authenticated, async (req, res, next) => {
+router.post('/checkAuth', authenticated, async (req, res, next) => {
     req.user ? res.sendStatus(200) : res.sendStatus(443);
 })
 

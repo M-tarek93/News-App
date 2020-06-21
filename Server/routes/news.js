@@ -1,12 +1,16 @@
 const router = require('express').Router();
 const userModel = require('../models/users');
 const authenticated = require('../middleware/authorization').authenticated();
+const sourcesCache = require('../middleware/cache').checkSourcesCache();
+const streamCache = require('../middleware/cache').checkStreamCache();
 const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
+const redisClient = require('redis').createClient();
 
-router.get('/sources', authenticated, async (req, res, next) => {
+router.get('/sources', authenticated, sourcesCache, async (req, res, next) => {
     try {
         const response = await newsapi.v2.sources();
+        redisClient.setex('sources', 3600, JSON.stringify(response.sources));
         res.send(response.sources);
     } catch {
         res.status(500).send("Internal server error while getting resources");
@@ -32,16 +36,17 @@ const handleSubscription = (subscribe) => {
     }
 }
 
-router.get('/subscribe/:id', authenticated, handleSubscription(true));
+router.post('/subscribe/:id', authenticated, handleSubscription(true));
 
-router.get('/unsubscribe/:id', authenticated, handleSubscription(false));
+router.post('/unsubscribe/:id', authenticated, handleSubscription(false));
 
-router.get('/stream', authenticated, async (req, res, next) => {
+router.get('/stream', authenticated, streamCache, async (req, res, next) => {
     try {
-        const user = await userModel.findOne({_id:req.user._id});
-        const response = await newsapi.v2.everything({ sources: user.sources.toString()});
+        const response = await newsapi.v2.everything({ sources: req.user.sources.toString()});
+        redisClient.setex(req.user.sources.sort().toString(), 300, JSON.stringify(response.articles));
         res.send(response.articles);
-    } catch {
+    } catch (e){
+        console.log(e)
         res.status(500).send("Internal server error while getting articles stream");
     }
 })

@@ -8,6 +8,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Paper } from "@material-ui/core";
+import xss from 'xss';
 
 // messages variables if any
 let error, success;
@@ -31,7 +32,7 @@ const Register = ({ setIsNewUser }) => {
     if (newUserData.fullName && newUserData.email && newUserData.password) {
       const res = await fetch("http://localhost:5000/users", {
         method: "POST",
-        body: JSON.stringify(newUserData),
+        body: xss(JSON.stringify(newUserData)),
         headers: {
           "Content-Type": "application/json",
         },
@@ -59,9 +60,9 @@ const Register = ({ setIsNewUser }) => {
   };
 
   return (
-    <Container component="main" maxWidth="xs" className="d-flex h-100">
-      <Paper className="row p-5 align-self-center" elevation={3}>
-        <CssBaseline />
+    <Container component="main" maxWidth="xs" className="d-flex h-100 mt-5">
+        <Paper className="row p-5 align-self-center" elevation={3}>
+          <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <PostAddOutlinedIcon />

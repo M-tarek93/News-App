@@ -13,6 +13,8 @@ import {
 } from "@material-ui/core";
 import clsx from "clsx";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import 'lazysizes/plugins/attrchange/ls.attrchange';
+import 'lazysizes';
 
 const NewsCard = ({article}) => {
   const [expanded, setExpanded] = React.useState(false);
@@ -30,9 +32,11 @@ const NewsCard = ({article}) => {
         subheader={article.source.name + " " + moment(article.publishedAt).calendar()}
       />
       <CardMedia
-        className={classes.media}
-        image={article.urlToImage || "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="}
+        className='lazysizes'
+        component="img"
+        src={article.urlToImage }
         title={article.title}
+        alt={article.title}
       />
       <CardContent>
         <Typography variant="body2" color="textSecondary" component="p">
@@ -69,10 +73,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down("sm")]: { width: "100%" },
     padding: 10,
     marginBottom: 20
-  },
-  media: {
-    height: 0,
-    paddingTop: "56.25%", // 16:9
   },
   expand: {
     transform: "rotate(0deg)",
