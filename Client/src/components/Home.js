@@ -10,16 +10,15 @@ const Home = () => {
   const [articles, setArticles] = React.useState([]);
 
   React.useEffect(() => {
-    fetchData("news/stream").then((response) => setArticles(response));
+    user && fetchData("news/stream").then(response => setArticles(response));
   }, [user]);
-
-  
 
   if (!user) return <Login />;
   else
     return (
       <Container style={{width: '80%'}} className="d-flex h-100 justify-content-center">
         <div className="row p-5 justify-content-center align-self-center">
+            <h4 className='mt-5'>{articles.length === 0 ?  "No articles found" : ""}</h4>
           {articles.map((article) => {
             return (
             <NewsCard key={article.title} article={article} />

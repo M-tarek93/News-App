@@ -13,29 +13,28 @@ router.get('/sources', authenticated, async (req, res, next) => {
     }
 })
 
-router.get('/subscribe/:id', authenticated, async (req, res, next) => {
-    const { id } = req.params
-    const condetions = { 
-        _id : req.user._id, 
-        sources : { $ne: id } 
-    }
-    const updateStatement = {
-        $push: { 
-            sources: id 
+const handleSubscription = (subscribe) => {
+    return async(req, res) => {
+        const { id } = req.params
+        const conditions = { 
+            _id : req.user._id, 
+            sources : subscribe ? { $ne: id } : { $eq: id } 
+        }
+        const updateStatement = subscribe ? {$push: { sources: id }} : {$pull: { sources: id }};
+        const options = { new: true }
+
+        try {
+            const user = await userModel.findOneAndUpdate(conditions, updateStatement, options);
+            user ? res.status(200).send(user.sources) : res.send('already done');
+        } catch {
+            res.status(500).send("Internal server error while subscribing/unsubscribing");
         }
     }
-    const options = { 
-        new: true
-    }
+}
 
-    try {
-        const user = await userModel.findOneAndUpdate(condetions, updateStatement, options);
-        user ? res.status(200).send(user.sources) : res.send('already added');
-    } catch {
-        res.status(500).send("Internal server error while adding a source");
-    }
+router.get('/subscribe/:id', authenticated, handleSubscription(true));
 
-})
+router.get('/unsubscribe/:id', authenticated, handleSubscription(false));
 
 router.get('/stream', authenticated, async (req, res, next) => {
     try {

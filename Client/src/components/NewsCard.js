@@ -25,11 +25,6 @@ const NewsCard = ({article}) => {
   return (
     <Card className={classes.root}>
       <CardHeader
-        action={
-          <IconButton aria-label="settings">
-            {/* <MoreVertIcon /> */}
-          </IconButton>
-        }
         key={article.title}
         title={article.title}
         subheader={article.source.name + " " + moment(article.publishedAt).calendar()}

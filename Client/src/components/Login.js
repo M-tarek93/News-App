@@ -59,7 +59,7 @@ const Login = () => {
         });
         const user = await getUser.json();
         localStorage.setItem("user", JSON.stringify(user?.user));
-        setImmediate(() => setUser(user));
+        setImmediate(() => setUser(user?.user));
         error = '';
       }
       // if no user was found in DB or invalid email/password combination

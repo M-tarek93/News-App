@@ -15,6 +15,7 @@ db.connect();
 const corsOptions = {
   origin: "http://localhost:3000",
   optionsSuccessStatus: 200,
+  methods: "GET,POST,OPTIONS"
 };
 
 app.use(cors(corsOptions));

@@ -40,3 +40,10 @@ export const logout = async (setUser) => {
   setUser();
   localStorage.clear();
 };
+
+export const handleSubscription = async (id, action, user, setUser) => {
+    const response = await fetchData(`news/${action}/${id}`);
+    const newUserData = {...user, sources: response}
+    localStorage.setItem("user", JSON.stringify(newUserData));
+    setUser(newUserData);
+}
