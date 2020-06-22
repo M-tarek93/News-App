@@ -8,20 +8,23 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Paper } from "@material-ui/core";
-import xss from 'xss';
+import xss from "xss";
 
 // messages variables if any
 let error, success;
 
 const Register = ({ setIsNewUser }) => {
+  // Registeration data
   const [newUserData, setNewUserData] = React.useState({
     fullName: "",
     email: "",
     password: "",
   });
 
+  // Styling classes
   const classes = useStyles();
 
+  // Used to update registeration data
   const handleInputChange = (e) => {
     const { value, name } = e.target;
     setNewUserData({ ...newUserData, [name]: value });
@@ -29,6 +32,7 @@ const Register = ({ setIsNewUser }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Submitting all registeration data and sanitizing them before sending
     if (newUserData.fullName && newUserData.email && newUserData.password) {
       const res = await fetch("http://localhost:5000/users", {
         method: "POST",
@@ -61,8 +65,8 @@ const Register = ({ setIsNewUser }) => {
 
   return (
     <Container component="main" maxWidth="xs" className="d-flex h-100 mt-5">
-        <Paper className="row p-5 align-self-center" elevation={3}>
-          <CssBaseline />
+      <Paper className="row p-5 align-self-center" elevation={3}>
+        <CssBaseline />
         <div className={classes.paper}>
           <Avatar className={classes.avatar}>
             <PostAddOutlinedIcon />

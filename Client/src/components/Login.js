@@ -1,13 +1,11 @@
 import React from "react";
 import { AuthContext } from "../App";
-import xss from 'xss';
+import xss from "xss";
 
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
@@ -16,20 +14,23 @@ import Register from "./Register";
 import { Paper } from "@material-ui/core";
 
 // error variable if any
-let error = '';
+let error = "";
 
 const Login = () => {
-  //user context that holds user info
+  // Authentication context used to set its state
   const { setAuthenticated } = React.useContext(AuthContext);
-  //auth data state
+  // Auth data state
   const [authData, setAuthData] = React.useState({
     email: "",
     password: "",
   });
+  // Flag to check if the user has an account or not
   const [isNewUser, setIsNewUser] = React.useState(false);
 
+  // Styling classes
   const classes = useStyles();
 
+  // Used to update authData state as the user types them
   const handleInputChange = (e) => {
     const { value, name } = e.target;
     setAuthData({ ...authData, [name]: value });
@@ -37,34 +38,34 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // if the user submits the form with both of email & password
     if (authData.email && authData.password) {
+      // Calling the login end-point and sanitizing data before sending to prevent XSS
       const res = await fetch("http://localhost:5000/auth/login", {
         method: "POST",
         body: xss(JSON.stringify(authData)),
-        credentials: 'include',
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
       });
       // if user is successfully logged in
       if (res.status === 200) {
-        const response = await res.json();
-        localStorage.setItem("sources", response);
         setImmediate(() => setAuthenticated(true));
-        error = '';
+        error = "";
       }
       // if no user was found in DB or invalid email/password combination
-      else if (res.status === 401)
-        error = "Invalid credintials";
+      else if (res.status === 401) error = "Invalid credintials";
       // server side problem
       else error = "some thing wrong happened";
       setAuthData({ email: "", password: "" });
-    }else{
-      error = 'All fields are required'
-      setAuthData({email: authData.email, password: authData.password})
-    } 
-
+    } else {
+      // if user didin't enter his email and password
+      error = "All fields are required";
+      setAuthData({ email: authData.email, password: authData.password });
+    }
   };
+  // Render the register page if the user clicked on the Register button
   if (isNewUser) return <Register setIsNewUser={setIsNewUser} />;
   else
     return (
@@ -90,7 +91,7 @@ const Login = () => {
                 required={true}
                 fullWidth
                 id="email"
-                label="email"
+                label="Email"
                 type="email"
                 name="email"
                 onChange={handleInputChange}
@@ -110,10 +111,6 @@ const Login = () => {
                 value={authData.password}
                 autoComplete="current-password"
               />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
               <Button
                 type="submit"
                 fullWidth
@@ -126,7 +123,11 @@ const Login = () => {
             <div>
               <Typography component="p" className="my-4">
                 Don't have an account?
-                <Button className="ml-1" onClick={() => setIsNewUser(true)} style={{ textTransform: 'none', color: '#424242'  }}>
+                <Button
+                  className="ml-1"
+                  onClick={() => setIsNewUser(true)}
+                  style={{ textTransform: "none", color: "#424242" }}
+                >
                   Register
                 </Button>
               </Typography>
@@ -151,7 +152,7 @@ const useStyles = makeStyles((theme) => ({
     height: theme.spacing(7),
   },
   submit: {
-    margin: theme.spacing(0, 0, 2),
+    margin: theme.spacing(2, 0, 2),
     color: "white",
     backgroundColor: "#424242",
     "&:hover": {

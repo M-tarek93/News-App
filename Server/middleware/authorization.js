@@ -1,26 +1,34 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
+// Check if req user is authenticated
 const authenticated = () => {
-    return (req, res, next) => {
-        if (req.cookies.accessTokenP1) {
-            let token = req.cookies.accessTokenP1 + "." + req.cookies.accessTokenP2;
-            verifyToken(token, req, res, next);
-        } else {
-            // no token was provided
-            res.sendStatus(401);
-        }
+  return (req, res, next) => {
+    // if the user have a signed cookie holding the access token
+    if (req.signedCookies.accessTokenP1) {
+      // Re-assemble the splitted access token
+      let token =
+        req.signedCookies.accessTokenP1 + "." + req.signedCookies.accessTokenP2;
+      // Calling the verification method to check its validity
+      verifyToken(token, req, res, next);
+    } else {
+      // No token was provided
+      res.sendStatus(401);
     }
-}
-
+  };
+};
+// Used to verify if the token is valid
 const verifyToken = (token, req, res, next) => {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, userData) => {
-        // token expired or not valid
-        if (err) res.sendStatus(402);
-        req.user = userData.user;
-        next();
-    });
-}
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, userData) => {
+    // token expired or not valid
+    if (err) res.sendStatus(402);
+    else {
+      // attaching the user instance to the req
+      req.user = userData.user;
+      next();
+    }
+  });
+};
 
 module.exports = {
-    authenticated
-}
+  authenticated,
+};

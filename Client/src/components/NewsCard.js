@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import moment from 'moment';
+import moment from "moment";
 import {
   Card,
   CardHeader,
@@ -13,13 +13,16 @@ import {
 } from "@material-ui/core";
 import clsx from "clsx";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import 'lazysizes/plugins/attrchange/ls.attrchange';
-import 'lazysizes';
+import "lazysizes/plugins/attrchange/ls.attrchange";
+import "lazysizes";
+import xss from "xss";
 
-const NewsCard = ({article}) => {
+const NewsCard = ({ article }) => {
+  // Expansion state for the card content
   const [expanded, setExpanded] = React.useState(false);
+  // Styling classes
   const classes = useStyles();
-
+  // Setting the expansion state
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
@@ -29,12 +32,14 @@ const NewsCard = ({article}) => {
       <CardHeader
         key={article.title}
         title={article.title}
-        subheader={article.source.name + " " + moment(article.publishedAt).calendar()}
+        subheader={
+          article.source.name + " " + moment(article.publishedAt).calendar()
+        }
       />
       <CardMedia
-        className='lazysizes'
+        className="lazysizes"
         component="img"
-        src={article.urlToImage }
+        src={article.urlToImage}
         title={article.title}
         alt={article.title}
       />
@@ -58,7 +63,9 @@ const NewsCard = ({article}) => {
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography paragraph>{article.content}</Typography>
-          <Typography paragraph>Details: <a href={article.url}>Click here</a></Typography>
+          <Typography paragraph>
+            Details: <a href={xss(article.url)}>Click here</a>
+          </Typography>
         </CardContent>
       </Collapse>
     </Card>
@@ -72,7 +79,7 @@ const useStyles = makeStyles((theme) => ({
     width: "80%",
     [theme.breakpoints.down("sm")]: { width: "100%" },
     padding: 10,
-    marginBottom: 20
+    marginBottom: 20,
   },
   expand: {
     transform: "rotate(0deg)",

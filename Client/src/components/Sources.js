@@ -6,13 +6,17 @@ import { Container } from '@material-ui/core';
 import SourceCard from './SourceCard';
 
 const Sources = () => {
+    // Authentication status 
     const { authenticated } = React.useContext(AuthContext);
+    // Sources array list
     const [sources, setSources] = React.useState([]);
   
     React.useEffect(() => {
+      // Fetching sources list if the user is authenticated
       authenticated && fetchData("news/sources").then((response) => setSources(response));
     }, [authenticated]);
   
+    // if not authenticated render the login form
     if (!authenticated) return <Login />;
     else
       return (

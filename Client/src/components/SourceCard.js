@@ -1,4 +1,5 @@
 import React from "react";
+import Cookies from 'js-cookie';
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Card,
@@ -14,11 +15,15 @@ import LocationOnTwoToneIcon from "@material-ui/icons/LocationOnTwoTone";
 import { handleSubscription } from "./helpers";
 
 const SourceCard = ({ source }) => {
+  // Determinig if the user is subscribed to this source or not depending on his local storage sources
   const [checked, setChecked] = React.useState(
-    localStorage.getItem('sources').includes(source.id)
+    JSON.parse(Cookies.get('sources')).includes(source.id)
   );
+
+  // Styling classes
   const classes = useStyles();
 
+  // Used to subscribe/unsubscribe from a source
   const handleChange = async () => {
     const action = !checked ? "subscribe" : "unsubscribe";
     handleSubscription(source.id, action);

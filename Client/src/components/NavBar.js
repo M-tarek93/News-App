@@ -12,22 +12,26 @@ import {
 } from "@material-ui/core";
 import MenuBookTwoToneIcon from "@material-ui/icons/MenuBookTwoTone";
 import InputIcon from "@material-ui/icons/Input";
-import MenuIcon from '@material-ui/icons/Menu';
+import MenuIcon from "@material-ui/icons/Menu";
 import { NavLink } from "react-router-dom";
 import { AuthContext } from "../App";
 import { logout } from "./helpers";
 
 const Navbar = () => {
+  // Authentication status context
   const { authenticated, setAuthenticated } = React.useContext(AuthContext);
 
+  // Styling classes
   const classes = useStyles();
 
+  // Dropdown menu anchor element
   const [anchorEl, setAnchorEl] = React.useState(null);
 
+  // Used to set the anchor element
   const handleClick = (e) => {
     setAnchorEl(e.currentTarget);
   };
-
+  // Removing the anchor if the user closes the menu
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -52,53 +56,56 @@ const Navbar = () => {
               </NavLink>
             </Typography>
             <div>
-            <Typography
-              color="inherit"
-              component={Button}
-              onClick={(e) => logout(setAuthenticated)}
-              style={{textTransform: 'none'}}
-              className={classes.link}
-            >
-                <InputIcon className="mr-2 mb-1"/>Log out
-            </Typography>
+              <Typography
+                color="inherit"
+                component={Button}
+                onClick={(e) => logout(setAuthenticated)}
+                style={{ textTransform: "none" }}
+                className={classes.link}
+              >
+                <InputIcon className="mr-2 mb-1" />
+                Log out
+              </Typography>
             </div>
             <Hidden smUp>
-            <div>
-              <Button
-                aria-controls="nav-menu"
-                aria-haspopup="true"
-                onClick={handleClick}
-                className={classes.title}
-              ><MenuIcon fontSize='large' style={{color: 'white'}}/></Button>
-              <Menu
-                id="nav-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                <MenuItem>
-                  <NavLink to="/" className={classes.dropMenuItem}>
-                    Home
-                  </NavLink>
-                </MenuItem>
-                <MenuItem>
-                  <NavLink to="/sources" className={classes.dropMenuItem}>
-                    Sources
-                  </NavLink>
-                </MenuItem>
-                <Divider />
-                <MenuItem>
-                  <Typography
-                    color="inherit"
-                    style={{ textTransform: "none" }}
-                    onClick={(e) => logout(setAuthenticated)}
-                  >
-                    Log out
-                  </Typography>
-                </MenuItem>
-              </Menu>
-            </div>
+              <div>
+                <Button
+                  aria-controls="nav-menu"
+                  aria-haspopup="true"
+                  onClick={handleClick}
+                  className={classes.title}
+                >
+                  <MenuIcon fontSize="large" style={{ color: "white" }} />
+                </Button>
+                <Menu
+                  id="nav-menu"
+                  anchorEl={anchorEl}
+                  keepMounted
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                >
+                  <MenuItem>
+                    <NavLink to="/" className={classes.dropMenuItem}>
+                      Home
+                    </NavLink>
+                  </MenuItem>
+                  <MenuItem>
+                    <NavLink to="/sources" className={classes.dropMenuItem}>
+                      Sources
+                    </NavLink>
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem>
+                    <Typography
+                      color="inherit"
+                      style={{ textTransform: "none" }}
+                      onClick={(e) => logout(setAuthenticated)}
+                    >
+                      Log out
+                    </Typography>
+                  </MenuItem>
+                </Menu>
+              </div>
             </Hidden>
           </>
         )}

@@ -1,19 +1,23 @@
 import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import Home from './components/Home';
-import Sources from './components/Sources';
-import { checkAuthenticated } from './components/helpers';
+import Home from "./components/Home";
+import Sources from "./components/Sources";
+import { checkAuthenticated } from "./components/helpers";
 import "./App.css";
 import Navbar from "./components/NavBar";
 
+// Authentication state context
 export const AuthContext = React.createContext(null);
 function App() {
-  const [ authenticated, setAuthenticated ] = React.useState(false);
+  // Authentication state
+  const [authenticated, setAuthenticated] = React.useState(false);
+  // Authentication context provider value
   const providerValue = { authenticated, setAuthenticated };
 
+  // Check if the user is authenticated at the initial loading
   React.useEffect(() => {
-    checkAuthenticated().then(res => setAuthenticated(res));
-  },[])
+    checkAuthenticated().then((res) => setAuthenticated(res));
+  }, []);
 
   return (
     <AuthContext.Provider value={providerValue}>

@@ -1,48 +1,84 @@
-const router = require('express').Router();
-const UserModel = require('../models/users');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const authenticated = require('../middleware/authorization').authenticated();
+const router = require("express").Router();
+const UserModel = require("../models/users");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const authenticated = require("../middleware/authorization").authenticated();
 
-
-
+// Main login logic
 const login = async (req, res) => {
-    const { body: { email, password } } = req;
-    try {
-        const user = await UserModel.findOne({ email: email.toLowerCase() });
-        if (!user) return res.sendStatus(401).send('Invalid credentials');
-        if (await bcrypt.compare(password, user.password)){
-            const accessToken = generateAccessToken(user);
-            const accessTokenP1 = accessToken.split('.').slice(0,2).join('.');
-            const accessTokenP2 = accessToken.split(".")[2];
-            res.cookie('accessTokenP1',accessTokenP1,{secure: false, sameSite: true, expires: new Date(Date.now() + 31536000000)});
-            res.cookie('accessTokenP2',accessTokenP2,{secure: false, httpOnly: true, expires: new Date(Date.now() + 31536000000)});
-            res.status(200).send(user.sources);
-        } else {
-            res.status(401).send('Invalid credentials');
-        }
-    } catch {
-        res.status(500).send('Internal server error');
+  // extracting the email and password fields from the body
+  const {
+    body: { email, password },
+  } = req;
+  try {
+    // Check if user exists with this email
+    const user = await UserModel.findOne({ email: escape(email.toLowerCase()) });
+    // if no user is found for this email send 401 error
+    if (!user) return res.sendStatus(401).send("Invalid credentials");
+    // else, compare the password hash with the hashed password in the database
+    if (await bcrypt.compare(password, user.password)) {
+      // Generate the access token
+      const accessToken = generateAccessToken(user);
+      // Split the JWT token into two parts:
+      // first part is the header and payload part and the other part is the signature and it's httpOnly
+      // to prevent modifying it and both parts are signed with a key
+      // both will be set to be secured: true in production and deployment
+      const accessTokenP1 = accessToken.split(".").slice(0, 2).join(".");
+      const accessTokenP2 = accessToken.split(".")[2];
+      res.cookie("accessTokenP1", accessTokenP1, {
+        secure: false,
+        sameSite: true,
+        signed: true,
+        expires: new Date(Date.now() + 31536000000),
+      });
+      res.cookie("accessTokenP2", accessTokenP2, {
+        secure: false,
+        httpOnly: true,
+        signed: true,
+        expires: new Date(Date.now() + 31536000000),
+      });
+      // sending subscribed sources array
+      res.cookie("sources", JSON.stringify(user.sources), {
+        secure: false,
+        sameSite: true,
+        expires: new Date(Date.now() + 31536000000),
+      });
+      // Send success response
+      res.sendStatus(200);
+    } else {
+      // if the password hash is not matched return error response
+      res.status(401).send("Invalid credentials");
     }
-}
+  } catch {
+    // if any error happend return server-side problem code
+    res.status(500).send("Internal server error");
+  }
+};
 
 const generateAccessToken = (userData) => {
-    const {password,__v,email,fullName,...user} = userData._doc 
-    return jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
-}
-
+  // Removing sensitive user data before generating the token
+  const { password, __v, email, fullName, ...user } = userData._doc;
+  // Generating the token with 1 day expiry
+  return jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "1d",
+  });
+};
 
 const logout = async (req, res) => {
-    res.clearCookie('accessTokenP1');
-    res.clearCookie('accessTokenP2');
-    res.sendStatus(200)
-}
+  // When user log out clear both cookies and send success code
+  res.clearCookie("accessTokenP1");
+  res.clearCookie("accessTokenP2");
+  res.clearCookie("sources");
+  res.sendStatus(200);
+};
 
-
-router.post('/login', login);
-router.post('/logout', logout);
-router.post('/checkAuth', authenticated, async (req, res, next) => {
-    req.user ? res.sendStatus(200) : res.sendStatus(443);
-})
+// Router routes for login, logout, and check authentication
+router.post("/login", login);
+router.post("/logout", logout);
+router.post("/checkAuth", authenticated, async (req, res, next) => {
+  // if user passes the authentication middleware send a success code
+  // else send unauthorized code
+  req.user ? res.sendStatus(200) : res.sendStatus(443);
+});
 
 module.exports = router;
