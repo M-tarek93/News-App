@@ -34,7 +34,7 @@ const Register = ({ setIsNewUser }) => {
     e.preventDefault();
     // Submitting all registeration data and sanitizing them before sending
     if (newUserData.fullName && newUserData.email && newUserData.password) {
-      const res = await fetch("http://localhost:5000/users", {
+      const res = await fetch("/users", {
         method: "POST",
         body: xss(JSON.stringify(newUserData)),
         headers: {

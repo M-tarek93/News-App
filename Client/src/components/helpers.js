@@ -1,6 +1,6 @@
 // Fetching data and returning them in Json format
 export const fetchData = async (target) => {
-  const res = await fetch(`http://localhost:5000/${target}`,{
+  const res = await fetch(`/${target}`,{
     credentials: 'include'
   });
   return res.status === 200 ? await res.json() : [];
@@ -8,7 +8,7 @@ export const fetchData = async (target) => {
 
 // Used for submitting actions
 export const fetchPost = async (target) => {
-  const res = await fetch(`http://localhost:5000/${target}`,{
+  const res = await fetch(`/${target}`,{
     method: 'POST',
     credentials: 'include'
   });

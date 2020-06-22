@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser');
 const userRouter = require("./Server/routes/users");
 const authRouter = require("./Server/routes/authentication");
 const newsRouter = require("./Server/routes/news");
+const path = require('path');
+const limit = require('express-limit').limit;
 
 // Getting the port number from env. variables or setting it to 5000 by default
 const port = process.env.PORT || 5000;
@@ -35,6 +37,18 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use("/users", userRouter);
 app.use("/auth", authRouter);
 app.use("/news", newsRouter);
+
+// Handles any requests that don't match the ones above
+app.use(limit({
+  max:    25,        // 25 requests
+  period: 60 * 1000 // per minute (60 seconds)
+}), express.static(path.join(__dirname, 'Client/build'))); 
+app.get('*', limit({
+  max:    25,        // 25 requests
+  period: 60 * 1000 // per minute (60 seconds)
+}), (req,res) =>{
+    res.sendFile(path.join(__dirname+'/Client/build/index.html'));
+});
 
 // Starting listening
 app.listen(port, (err) => {

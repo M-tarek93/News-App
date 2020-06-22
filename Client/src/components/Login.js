@@ -41,7 +41,7 @@ const Login = () => {
     // if the user submits the form with both of email & password
     if (authData.email && authData.password) {
       // Calling the login end-point and sanitizing data before sending to prevent XSS
-      const res = await fetch("http://localhost:5000/auth/login", {
+      const res = await fetch("/auth/login", {
         method: "POST",
         body: xss(JSON.stringify(authData)),
         credentials: "include",
