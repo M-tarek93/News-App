@@ -34,6 +34,7 @@ const login = async (req, res) => {
       res.cookie("accessTokenP2", accessTokenP2, {
         secure: false,
         httpOnly: true,
+        sameSite: true,
         signed: true,
         expires: new Date(Date.now() + 31536000000),
       });
